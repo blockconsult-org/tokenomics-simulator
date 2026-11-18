@@ -4,7 +4,7 @@
 
 Model token supply, vesting, emissions, liquidity and scenario outcomes. A focused, offline desktop workspace from [Block Consult](https://www.blockconsult.org), available in English and German.
 
-[![Build](https://github.com/blockconsult-org/tokenomics-simulator/actions/workflows/release.yml/badge.svg)](https://github.com/blockconsult-org/tokenomics-simulator/actions) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/blockconsult-org/tokenomics-simulator)](https://github.com/blockconsult-org/tokenomics-simulator/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) · [Platform builds](https://github.com/blockconsult-org/tokenomics-simulator/actions/workflows/release.yml)
 
 **[Download for macOS or Windows](https://github.com/blockconsult-org/tokenomics-simulator/releases/latest)** · [Use in your browser](https://www.blockconsult.org/tokenomics-simulator) · [Report an issue](https://github.com/blockconsult-org/tokenomics-simulator/issues)
 
