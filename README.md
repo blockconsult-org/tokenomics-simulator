@@ -61,7 +61,9 @@ Release notes state the signing and notarization status of each download. Unsign
 - The current model saves automatically in this app's local profile when local storage is available. Download JSON copies for backups and versioning.
 - No analytics, telemetry, cloud synchronization or automatic uploads. Website and evidence links open in your default browser. Unknown evidence destinations require confirmation.
 
-Share links are readable, encoded snapshots, **not encrypted**. **Copy share link** includes the current model, including token and allocation names. Review those inputs before sharing. Opening a link replaces the model on screen; **Undo** brings back the previous inputs. Viewing a shared model leaves the local saved copy unchanged, while editing it makes it the model that autosaves. A pinned comparison baseline is not included in the model's JSON or share link.
+Share links are readable, encoded snapshots, **not encrypted**. **Copy share link** includes the current model, including token and allocation names. Review those inputs before sharing. A pinned comparison baseline is not included in the model's JSON or share link.
+
+Opening a link replaces the model on screen. **Undo** restores the model that preceded the shared one. If navigation reloads the page, that is the last local save, or the default preset if no save is available. Export JSON first to protect unsaved edits. Viewing a shared model leaves the local saved copy unchanged, while editing it makes it the model that autosaves.
 
 ## Run from source
 
