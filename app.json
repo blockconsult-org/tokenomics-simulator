@@ -3,7 +3,7 @@
   "name": "Tokenomics Simulator",
   "nameDe": "Tokenomics-Simulator",
   "description": "Model token supply, vesting, emissions, liquidity and scenario outcomes.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "appId": "org.blockconsult.tokenomicssimulator",
   "publicPath": "/tokenomics-simulator",
   "repository": "https://github.com/blockconsult-org/tokenomics-simulator",
