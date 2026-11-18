@@ -1,0 +1,258 @@
+/* ----------------------------------------------------------------------------
+   Simulator charts: the series palette, and the chart parts that utilities
+   cannot express. The classes are set by simulator/components/charts.
+
+   Palette. Eight categorical colours in a fixed order: blue, orange, teal,
+   gold, magenta, green, violet, red. Slot 1 is the brand accent of each
+   theme. The other seven keep the hue order of a published colour-blind-safe
+   set and were stepped in lightness and chroma until, in both themes:
+
+   - every colour clears 3:1 against the page, card, surface and elevated
+     fills, so a thin line or a legend swatch is never lost;
+   - neighbours in the order, slot 8 beside slot 1 included, stay well apart
+     under simulated protanopia and deuteranopia;
+   - any two of the eight stay apart for full colour vision.
+
+   Two colours that are not neighbours can still be close for a colour-blind
+   reader, so no chart relies on colour alone: the legend and the tooltip
+   name every series. Assign the slots in order and do not skip one.
+
+   .sim-chart            root of one chart. --sim-chart-surface is the fill
+                         behind it, used for the ring round a crosshair point
+                         and the halo behind a label. Set it on a container
+                         that is neither the page nor a .card.
+   .sim-chart-frame      the measured, focusable box that holds the drawing.
+                         Its font size is the size of the tick type, and the
+                         layout reads it from here. The component sets
+                         --sim-chart-height and --sim-chart-ratio on it.
+   .sim-chart-tick       numbers on the axes.
+   .sim-chart-label      words in the drawing: the axis caption, marker and
+                         reference labels, the label in a donut.
+   .sim-chart-cursor     the crosshair and what moves with it.
+   .sim-chart-toggle     a legend entry. aria-pressed="false" is a hidden
+                         series: struck through, with a faded swatch.
+   .sim-chart-key        the list of shares beside a donut.
+
+   Everything sits in the components layer and reads the site's tokens, so
+   both themes work and a utility on the same element still wins. The only
+   transitions are on opacity.
+---------------------------------------------------------------------------- */
+:root {
+  --color-chart-1: #3176d2;
+  --color-chart-2: #ac4403;
+  --color-chart-3: #0baa92;
+  --color-chart-4: #ab8704;
+  --color-chart-5: #ae3b87;
+  --color-chart-6: #1d7339;
+  --color-chart-7: #a57fc6;
+  --color-chart-8: #e75e6a;
+}
+
+:root[data-theme="light"] {
+  --color-chart-1: #2867c4;
+  --color-chart-2: #a43b00;
+  --color-chart-3: #019a8a;
+  --color-chart-4: #b18104;
+  --color-chart-5: #aa357f;
+  --color-chart-6: #066c35;
+  --color-chart-7: #642f9d;
+  --color-chart-8: #de5e68;
+}
+
+@layer components {
+  .sim-chart {
+    --sim-chart-surface: var(--color-bg);
+    min-width: 0;
+  }
+  /* The dark card is a 40% tint of the surface over the page. The ring and
+     the halo have to be opaque, so the same mix is made against the page
+     colour instead of against transparent. */
+  .card .sim-chart {
+    --sim-chart-surface: color-mix(
+      in oklab,
+      var(--color-surface) 40%,
+      var(--color-bg)
+    );
+  }
+  :root[data-theme="light"] .card .sim-chart {
+    --sim-chart-surface: var(--color-surface);
+  }
+
+  /* The drawing is taken out of the flow, so its width can never hold the
+     frame open and the frame always measures what its container gives it.
+     pan-y leaves vertical scrolling to the page while a horizontal drag
+     moves the crosshair. */
+  .sim-chart-frame {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: var(--sim-chart-height);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    cursor: crosshair;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sim-chart-svg {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sim-chart-tick {
+    fill: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-variant-numeric: tabular-nums;
+  }
+  .sim-chart-label {
+    fill: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  /* Keeps a label readable where a line runs behind it. */
+  .sim-chart-halo {
+    stroke: var(--sim-chart-surface);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+    paint-order: stroke;
+  }
+
+  .sim-chart-grid,
+  .sim-chart-axis,
+  .sim-chart-marker,
+  .sim-chart-crosshair {
+    fill: none;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+  }
+  .sim-chart-grid {
+    stroke: var(--color-line);
+  }
+  .sim-chart-axis,
+  .sim-chart-marker {
+    stroke: var(--color-line-strong);
+  }
+  .sim-chart-crosshair {
+    stroke: var(--color-faint);
+  }
+  /* A reference value is a threshold, not a grid line, so it is dashed. */
+  .sim-chart-reference {
+    fill: none;
+    stroke: var(--color-faint);
+    stroke-width: 1px;
+    stroke-dasharray: 4 4;
+    shape-rendering: crispEdges;
+  }
+  /* The slot under the pointer in a bar chart. */
+  .sim-chart-column {
+    fill: var(--color-line);
+  }
+  /* A square on a line at the crosshair, ringed in the surface colour so
+     it stays clear of the line it sits on. */
+  .sim-chart-point {
+    stroke: var(--sim-chart-surface);
+    stroke-width: 4px;
+    paint-order: stroke;
+  }
+
+  .sim-chart-track {
+    fill: none;
+    stroke: var(--color-line);
+  }
+  .sim-chart-slice {
+    transition: opacity 150ms var(--ease-out-quart);
+  }
+  .sim-chart-figure {
+    fill: var(--color-fg);
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+
+  /* Hidden until the component has measured it and moved it beside the
+     crosshair, which happens before the browser paints. */
+  .sim-chart-tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    visibility: hidden;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2.5);
+    border: 1px solid var(--color-line-strong);
+    background-color: var(--color-elevated);
+    color: var(--color-muted);
+    line-height: 1.5;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .sim-chart-toggle,
+  .sim-chart-key {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .sim-chart-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    min-width: 44px;
+    min-height: 44px;
+    padding: .5rem .25rem;
+    border: 1px solid transparent;
+    font: 400 .875rem/1.4 var(--font-sans);
+    letter-spacing: normal;
+    text-transform: none;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .sim-chart-toggle:focus-visible { outline: 2px solid var(--color-link); outline-offset: -2px; }
+  .sim-chart-swatch {
+    flex: none;
+    transition: opacity 150ms var(--ease-out-quart);
+  }
+  .sim-chart-toggle[aria-pressed="false"] {
+    color: var(--color-faint);
+  }
+  .sim-chart-toggle[aria-pressed="false"] .sim-chart-toggle-label {
+    text-decoration: line-through;
+  }
+  .sim-chart-toggle[aria-pressed="false"] .sim-chart-swatch {
+    opacity: 0.35;
+  }
+  @media (hover: hover) {
+    .sim-chart-toggle:hover {
+      color: var(--color-fg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sim-chart-slice,
+    .sim-chart-swatch {
+      transition: none;
+    }
+  }
+
+  /* Paper has no pointer. It can also be narrower than the screen without
+     the script hearing of it, so the frame takes the proportions of the
+     drawing and the drawing, which scales to its viewBox, fills it. */
+  @media print {
+    .sim-chart-frame {
+      height: auto;
+      aspect-ratio: var(--sim-chart-ratio);
+    }
+    .sim-chart-tooltip,
+    .sim-chart-cursor {
+      display: none;
+    }
+  }
+}

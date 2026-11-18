@@ -1,0 +1,128 @@
+/* ----------------------------------------------------------------------------
+   Tokenomics simulator: page-level styles.
+
+   The site has one accent and no status colours, and the health checks need
+   three. They are text colours, checked at 4.5:1 or better against the page,
+   card and elevated fills of both themes. A status is never shown by colour
+   alone: every use carries the status word and a mark of its own shape.
+---------------------------------------------------------------------------- */
+:root {
+  --color-status-pass: #4ab889;
+  --color-status-watch: #d9a441;
+  --color-status-risk: #f0736b;
+}
+
+:root[data-theme="light"] {
+  --color-status-pass: #1a7a50;
+  --color-status-watch: #8a5a00;
+  --color-status-risk: #c2362e;
+}
+
+@layer components {
+  /* Status word and mark. data-status is pass, watch, risk or na. */
+  .sim-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-muted);
+  }
+  .sim-status[data-status="pass"] {
+    color: var(--color-status-pass);
+  }
+  .sim-status[data-status="watch"] {
+    color: var(--color-status-watch);
+  }
+  .sim-status[data-status="risk"] {
+    color: var(--color-status-risk);
+  }
+
+  /* The mark: a filled square for risk, a half-filled one for watch, an
+     outlined one for pass and a dash for not applicable. */
+  .sim-status::before {
+    content: "";
+    flex: none;
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 1.5px solid currentColor;
+  }
+  .sim-status[data-status="risk"]::before {
+    background: currentColor;
+  }
+  .sim-status[data-status="watch"]::before {
+    border-bottom-width: 0.3125rem;
+  }
+  .sim-status[data-status="na"]::before {
+    height: 0;
+    border-width: 1.5px 0 0;
+  }
+
+  /* On wide screens the inputs stay beside the results and scroll on their
+     own, so a change and its effect are visible together. */
+  @media (min-width: 64rem) {
+    .sim-inputs {
+      position: sticky;
+      top: 1rem;
+      max-height: calc(100dvh - 2rem);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      /* A thin thumb on no track: the column is a form, and a full-width
+         scrollbar beside it reads as a second page edge. */
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-scroll-thumb) transparent;
+      /* A scroll box clips at its padding edge. The input groups reach 8px
+         past their rows to leave room for focus rings, so the box is that
+         much wider than its column on each side. */
+      margin-inline: -0.5rem;
+      padding-inline: 0.5rem;
+    }
+  }
+
+  /* Wide tables scroll inside their own box; the page never scrolls sideways. */
+  .sim-scroll-x {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Print: the report. The page switches to the light theme while printing
+   (see simulator.tsx), so only layout is set here.
+---------------------------------------------------------------------------- */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #fff;
+  }
+
+  .sim-inputs {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .card,
+  .sim-print-keep {
+    break-inside: avoid;
+  }
+
+  .sim-print-break {
+    break-before: page;
+  }
+
+  /* Paper cannot scroll: a wide table has to fit the sheet instead. */
+  .sim-scroll-x {
+    overflow: visible;
+  }
+
+  /* Controls that mean nothing on paper. The skip link is fixed, so it
+     would otherwise repeat on every sheet. */
+  .skip-link,
+  .sim-help-button {
+    display: none;
+  }
+}
